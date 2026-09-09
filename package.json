@@ -1,0 +1,44 @@
+{
+  "name": "hctvung",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "electron .",
+    "package:win": "electron-packager . Maomi --platform=win32 --arch=x64 --out=dist --overwrite --asar",
+    "package:win:portable": "electron-builder --win portable --x64",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngdwc/hctvung.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ngdwc/hctvung/issues"
+  },
+  "homepage": "https://github.com/ngdwc/hctvung#readme",
+  "devDependencies": {
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.maomi.hoctuvung",
+    "productName": "Maomi",
+    "files": [
+      "app.js",
+      "index.html",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "artifactName": "Maomi-${version}-portable.exe"
+    }
+  }
+}
