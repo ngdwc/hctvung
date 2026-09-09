@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maomii - Ôn Tiếng Anh</title>
+<style>
+:root{
+  --bg:#fff8fc;--card:#fff;--text:#302a38;--muted:#817789;
+  --pink:#ff8fbd;--pink2:#ffe1ee;--green:#7ed6a5;--green2:#e3f8ec;
+  --red:#ff8b8b;--red2:#ffe7e7;--purple:#a98cff;--shadow:0 12px 35px #d9bfd044;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#fff8fc,#f8f5ff);color:var(--text)}
+button{font:inherit;border:0;cursor:pointer}
+.app{max-width:900px;margin:auto;padding:22px}
+header{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}
+.logo{font-size:25px;font-weight:900}.logo span{color:var(--pink)}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.badge{padding:7px 11px;border-radius:999px;background:#fff;box-shadow:0 4px 15px #00000008;font-size:13px}
+.panel,.card{background:rgba(255,255,255,.9);border:1px solid #fff;box-shadow:var(--shadow);border-radius:25px}
+.panel{padding:18px;margin-bottom:18px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:10px 16px;border-radius:14px;background:#f4eef7;color:var(--muted);font-weight:750}
+.tab.active{background:var(--pink2);color:#d84f87}
+.mode{display:flex;gap:8px;margin-top:12px}
+.mode button{padding:9px 14px;border-radius:12px;background:#f6f2f8;color:var(--muted)}
+.mode button.active{background:#eee6ff;color:#7658ce}
+.progress{height:9px;background:#eee7ef;border-radius:99px;overflow:hidden;margin:16px 0 5px}
+.bar{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));width:0%;transition:.3s}
+.small{font-size:13px;color:var(--muted)}
+.card{min-height:390px;padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.level{font-size:13px;font-weight:800;background:var(--pink2);color:#d84f87;padding:7px 12px;border-radius:999px}
+.word{font-size:clamp(42px,9vw,78px);font-weight:950;margin:20px 0 6px;letter-spacing:-2px}
+.ipa{font-family:Georgia,serif;color:#8b7e90;font-size:19px}
+.audio{margin-top:15px;padding:9px 15px;border-radius:14px;background:#f2edff;color:#7459c8;font-weight:700}
+.meaning{margin-top:22px;font-size:20px;font-weight:750;max-width:650px}
+.example{margin-top:10px;color:var(--muted);max-width:620px;font-style:italic}
+.reveal{padding:13px 22px;border-radius:15px;background:#302a38;color:#fff;margin-top:22px;font-weight:800}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.action{padding:17px;border-radius:18px;font-weight:900;font-size:16px}
+.unknown{background:var(--red2);color:#d65c5c}.known{background:var(--green2);color:#3b9a65}
+.secondary{margin-top:12px;width:100%;padding:12px;border-radius:15px;background:#f4eef7;color:#695d70;font-weight:750}
+.list{margin-top:18px}.item{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid #eee7ee}
+.item:last-child{border-bottom:0}.item b{font-size:17px}.item button{background:#f2edff;color:#7658ce;padding:7px 10px;border-radius:10px}
+.empty{text-align:center;padding:45px;color:var(--muted)}
+.loading{opacity:.6;pointer-events:none}
+
+.quote-banner{background:linear-gradient(90deg,#fff0f6,#f3edff);border:1px solid #ffe1ee;border-radius:16px;padding:10px 16px;margin-bottom:14px;font-size:14px;color:#8a5c86;font-weight:650;text-align:center}
+.icon-btn{background:#fff;border-radius:12px;padding:8px 11px;box-shadow:0 4px 15px #00000008;font-size:16px}
+
+/* Background video styling */
+.yt-bg{position:fixed;top:50%;left:50%;width:100vw;height:100vh;transform:translate(-50%,-50%);z-index:-2;overflow:hidden;pointer-events:none}
+.yt-bg iframe, .yt-bg div{position:absolute;top:50%;left:50%;width:100vw;height:56.25vw;min-height:100vh;min-width:177.78vh;transform:translate(-50%,-50%);pointer-events:none}
+.yt-overlay{position:fixed;inset:0;z-index:-1;background:rgba(255,248,252,.82);backdrop-filter:blur(1px)}
+
+.pet-widget{position:fixed;right:18px;bottom:18px;width:88px;text-align:center;cursor:pointer;z-index:50;user-select:none}
+.pet-bubble{display:none;background:#302a38;color:#fff;font-size:12px;padding:8px 11px;border-radius:12px;margin-bottom:6px;box-shadow:0 6px 18px #0000002e}
+.pet-emoji{font-size:44px;filter:drop-shadow(0 8px 10px #00000022);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.pet-name{color:#8a7c8e;margin-top:2px}
+.pet-bar{height:6px;background:#eee4ec;border-radius:99px;overflow:hidden;margin-top:5px}
+.pet-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--purple),var(--pink));transition:.4s}
+
+.toast{position:fixed;left:50%;top:22px;transform:translate(-50%,-140%);background:#302a38;color:#fff;padding:11px 20px;border-radius:14px;font-weight:700;font-size:14px;box-shadow:0 10px 30px #00000033;z-index:80;transition:.35s;opacity:0;max-width:88vw;text-align:center}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+.modal-backdrop{display:none;position:fixed;inset:0;background:#00000055;z-index:90;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:22px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px #00000033}
+.modal h3{margin:0 0 6px}
+.modal input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #eadfe6;margin-top:12px;font:inherit;box-sizing:border-box}
+.modal-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.modal-actions button{flex:1;padding:11px;border-radius:12px;background:#f4eef7;color:#695d70;font-weight:750}
+.modal-actions button:first-child{background:var(--pink2);color:#d84f87}
+
+@media(max-width:600px){.app{padding:13px}.card{min-height:430px;padding:22px}.actions{grid-template-columns:1fr}.word{font-size:52px}.pet-widget{right:10px;bottom:10px;width:72px}.pet-emoji{font-size:34px}}</style>
+
+<!-- Load YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+<div class="yt-bg" id="ytBg" style="display:none"><div id="ytPlayer"></div></div>
+<div class="yt-overlay" id="ytOverlay" style="display:none"></div>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+<header>
+  <div class="logo">🍡 Maomi <span>🐾</span></div>
+  <div class="stats">
+    <div class="badge">🔥 <b id="streak">0</b></div>
+    <div class="badge">📚 <b id="totalKnown">0</b> biết</div>
+    <div class="badge">🧠 <b id="totalUnknown">0</b> ôn</div>
+    <button class="icon-btn" onclick="openSettings()" title="Cài đặt hình nền">⚙️</button>
+  </div>
+</header>
+
+<div class="quote-banner" id="quoteBanner"></div>
+
+<section class="panel">
+  <div class="tabs" id="levels"></div>
+  <div class="mode">
+    <button id="learnBtn" class="active" onclick="setMode('learn')">✨ Học</button>
+    <button id="reviewBtn" onclick="setMode('review')">🔁 Ôn từ chưa biết</button>
+  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="small" id="progressText">Đang tải...</div>
+</section>
+
+<main id="main">
+  <div class="card">
+    <div class="small">Đang tải từ vựng...</div>
+  </div>
+</main>
+
+<section class="panel list" id="listPanel" style="display:none">
+  <b>📖 Từ đang cần ôn</b>
+  <div id="reviewList"></div>
+</section>
+</div>
+
+<div class="pet-widget" id="petWidget" onclick="petInteract()">
+  <div class="pet-bubble" id="petBubble"></div>
+  <div class="pet-emoji" id="petEmoji">🥚</div>
+  <div class="pet-name small" id="petName">Trứng bí ẩn</div>
+  <div class="pet-bar"><div class="pet-bar-fill" id="petBarFill"></div></div>
+</div>
+
+<div class="modal-backdrop" id="settingsBackdrop" onclick="closeSettings(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>⚙️ Hình nền video</h3>
+    <p class="small">Dán link YouTube để làm hình nền lúc học (video sẽ tự tắt tiếng và lặp lại).</p>
+    <input id="ytInput" type="text" placeholder="https://www.youtube.com/watch?v=...">
+    <div class="modal-actions">
+      <button onclick="applyBgVideo()">Áp dụng</button>
+      <button onclick="removeBgVideo()">Xóa hình nền</button>
+      <button onclick="closeSettings()">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA_URLS = {
+  A1:"https://raw.githubusercontent.com/lratusa/wordmaster-wordlists/main/english/cefr_a1.json",
+  A2:"https://raw.githubusercontent.com/lratusa/wordmaster-wordlists/main/english/cefr_a2.json",
+  B1:"https://raw.githubusercontent.com/lratusa/wordmaster-wordlists/main/english/cefr_b1.json",
+  B2:"https://raw.githubusercontent.com/lratusa/wordmaster-wordlists/main/english/cefr_b2.json",
+  C1:"https://raw.githubusercontent.com/lratusa/wordmaster-wordlists/main/english/cefr_c1.json",
+  C2:"https://raw.githubusercontent.com/lratusa/wordmaster-wordlists/main/english/cefr_c2.json"
+};
+
+const DEMO_WORDS = [
+  ["A1","apple"],["A1","book"],["A1","beautiful"],["A1","house"],
+  ["A2","arrive"],["A2","borrow"],["A2","careful"],["A2","decide"],
+  ["B1","achieve"],["B1","although"],["B1","benefit"],["B1","experience"],
+  ["B2","abandon"],["B2","accurate"],["B2","alternative"],["B2","complex"],
+  ["C1","ambiguous"],["C1","coherent"],["C1","contemporary"],["C1","precise"],
+  ["C2","albeit"],["C2","conspicuous"],["C2","meticulous"],["C2","ubiquitous"]
+];
+
+const LEVELS=["A1","A2","B1","B2","C1","C2"];
+let words=DEMO_WORDS.map(([level,word])=>({level,word}));
+let apiLoaded=false;
+let level="A1", mode="learn", index=0, revealed=false, current=null;
+let state=JSON.parse(localStorage.getItem("maomiState") || localStorage.getItem("vocabMochi") || "null") || {
+  known:{A1:[],A2:[],B1:[],B2:[],C1:[],C2:[]},
+  unknown:{A1:[],A2:[],B1:[],B2:[],C1:[],C2:[]},
+  streak:0,
+  pet:{xp:0},
+  progress:{},
+  settings:{}
+};
+if(!state.pet) state.pet={xp:0};
+if(!state.progress) state.progress={};
+if(!state.settings) state.settings={};
+let resumeApplied=false;
+
+// ===== Motivational content =====
+const QUOTES=[
+  "Mỗi từ mới học hôm nay là một bước gần hơn tới ước mơ 🌱",
+  "Không cần nhanh, chỉ cần không dừng lại 🐢",
+  "Hôm qua bạn ước có thể làm được điều này, hôm nay hãy làm nó 💪",
+  "10 phút mỗi ngày, 1 năm sau bạn sẽ khác hẳn ✨",
+  "Sai không sao, quên mới là vấn đề — ôn lại là bạn đang thắng 🔁",
+  "Từ vựng giống hạt giống, gieo đều rồi sẽ có ngày nở hoa 🌸",
+  "Bạn không cần giỏi ngay, chỉ cần giỏi hơn hôm qua 📈",
+  "Maomi đang chờ được lớn lên cùng bạn đó 🐾"
+];
+const KNOWN_MSGS=["Xịn sò! 🎉","Quá đỉnh!","Chuẩn không cần chỉnh 👏","Não bạn đang chạy hết công suất 🔥","Giỏi lắm, tiếp tục nào!"];
+const UNKNOWN_MSGS=["Không sao, ghi nhớ ngay từ bây giờ nè 💡","Lần sau chắc chắn nhớ!","Ôn thêm 1 lần nữa là quen liền 🔁","Từ khó thì mới đáng nhớ 😄"];
+const STREAK_MSGS={5:"🔥 Streak 5! Đừng dừng lại!",10:"🔥🔥 Streak 10! Bạn đang cháy!",20:"🚀 Streak 20! Không gì cản nổi!",50:"👑 Streak 50! Huyền thoại!"};
+
+function showQuote(){
+  document.getElementById("quoteBanner").textContent=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+}
+let toastTimer=null;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+// ===== Pet =====
+const PET_STAGES=[
+  {min:0,emoji:"🥚",name:"Trứng bí ẩn"},
+  {min:15,emoji:"🐣",name:"Maomi mới nở"},
+  {min:50,emoji:"🐥",name:"Maomi con"},
+  {min:120,emoji:"🐰",name:"Maomi tinh nghịch"},
+  {min:250,emoji:"🦊",name:"Maomi khôn lanh"},
+  {min:500,emoji:"🦄",name:"Maomi huyền thoại"}
+];
+function petStage(xp){let s=PET_STAGES[0];for(const st of PET_STAGES) if(xp>=st.min) s=st;return s}
+function petNextStage(xp){return PET_STAGES.find(st=>st.min>xp)}
+function renderPet(bubbleText){
+  const xp=state.pet.xp;
+  const stage=petStage(xp), next=petNextStage(xp);
+  document.getElementById("petEmoji").textContent=stage.emoji;
+  document.getElementById("petName").textContent=stage.name;
+  const floor=stage.min, ceil=next?next.min:floor+1;
+  const pct=next?Math.min(100,((xp-floor)/(ceil-floor))*100):100;
+  document.getElementById("petBarFill").style.width=pct+"%";
+  const bubble=document.getElementById("petBubble");
+  if(bubbleText){
+    bubble.textContent=bubbleText;
+    bubble.style.display="block";
+    clearTimeout(window._petBubbleTimer);
+    window._petBubbleTimer=setTimeout(()=>bubble.style.display="none",2200);
+  }
+}
+function petInteract(){
+  const msgs=["Cố lên nha! 🐾","Học cùng tớ nào!","Hôm nay bạn giỏi ghê!","Tớ đang lớn lên nhờ bạn đó 💖"];
+  renderPet(msgs[Math.floor(Math.random()*msgs.length)]);
+}
+
+// ===== YouTube Background via API =====
+let ytPlayer = null;
+let ytApiReady = false;
+
+function onYouTubeIframeAPIReady() {
+  ytApiReady = true;
+  renderBgVideo();
+}
+
+function extractYouTubeId(url){
+  if(!url) return null;
+  try{
+    const u=new URL(url.trim());
+    if(u.hostname.includes("youtu.be")) return u.pathname.slice(1);
+    if(u.searchParams.get("v")) return u.searchParams.get("v");
+    const m=u.pathname.match(/\/(embed|shorts)\/([a-zA-Z0-9_-]{11})/);
+    if(m) return m[2];
+  }catch(e){}
+  const m2=url.match(/[a-zA-Z0-9_-]{11}/);
+  return m2?m2[0]:null;
+}
+
+function openSettings(){
+  document.getElementById("ytInput").value=state.settings.bgVideo||"";
+  document.getElementById("settingsBackdrop").style.display="flex";
+}
+function closeSettings(e){
+  if(e && e.target && e.target.id!=="settingsBackdrop") return;
+  document.getElementById("settingsBackdrop").style.display="none";
+}
+
+function applyBgVideo(){
+  const url=document.getElementById("ytInput").value.trim();
+  const id=extractYouTubeId(url);
+  if(!id){toast("Link YouTube không hợp lệ 🥲");return}
+  state.settings.bgVideo=url;
+  save();
+  renderBgVideo();
+  closeSettings();
+  toast("Đã đổi hình nền! 🎬");
+}
+
+function removeBgVideo(){
+  state.settings.bgVideo=null;
+  save();
+  renderBgVideo();
+  closeSettings();
+  toast("Đã xóa hình nền");
+}
+
+function renderBgVideo(){
+  const id = state.settings.bgVideo ? extractYouTubeId(state.settings.bgVideo) : null;
+  const bg = document.getElementById("ytBg");
+  const overlay = document.getElementById("ytOverlay");
+
+  if (!id) {
+    bg.style.display = "none";
+    overlay.style.display = "none";
+    if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+    return;
+  }
+
+  bg.style.display = "block";
+  overlay.style.display = "block";
+
+  if (ytPlayer && ytPlayer.loadVideoById) {
+    ytPlayer.loadVideoById({videoId: id});
+    ytPlayer.mute();
+    ytPlayer.playVideo();
+  } else if (ytApiReady) {
+    ytPlayer = new YT.Player('ytPlayer', {
+      videoId: id,
+      playerVars: {
+        'autoplay': 1,
+        'controls': 0,
+        'showinfo': 0,
+        'modestbranding': 1,
+        'loop': 1,
+        'playlist': id,
+        'fs': 0,
+        'cc_load_policy': 0,
+        'iv_load_policy': 3,
+        'autohide': 1,
+        'enablejsapi': 1,
+        'playsinline': 1
+      },
+      events: {
+        'onReady': function(e) {
+          e.target.mute();
+          e.target.playVideo();
+        },
+        'onStateChange': function(e) {
+          if (e.data === YT.PlayerState.ENDED) {
+            e.target.playVideo();
+          }
+        }
+      }
+    });
+  }
+}
+
+// Tự động kích hoạt lại video khi người dùng click bất kỳ đâu nếu trình duyệt từng chặn
+document.addEventListener('click', () => {
+  if (ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+    ytPlayer.mute();
+    ytPlayer.playVideo();
+  }
+}, { once: false });
+
+// ===== Resume progress =====
+function initFromState(){
+  level=(state.progress.level && LEVELS.includes(state.progress.level))?state.progress.level:"A1";
+  mode=state.progress.mode==="review"?"review":"learn";
+  document.getElementById("learnBtn").classList.toggle("active",mode==="learn");
+  document.getElementById("reviewBtn").classList.toggle("active",mode==="review");
+}
+function resumeIndexOnce(){
+  if(resumeApplied) return;
+  resumeApplied=true;
+  if(state.progress.word){
+    const arr=list(level,mode);
+    const idx=arr.indexOf(state.progress.word);
+    if(idx>=0) index=idx;
+  }
+}
+function saveProgress(word){
+  state.progress={level,mode,word:word||null};
+}
+
+async function loadCEFRWords(){
+  try{
+    const results = await Promise.all(LEVELS.map(async l=>{
+      const r=await fetch(DATA_URLS[l], {cache:"no-store"});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const data=await r.json();
+      return (data.words||[]).map(x=>({
+        level:l,
+        word:String(x.word||"").trim(),
+        phonetic:x.phonetic||"",
+        pos:x.part_of_speech||"",
+        sourceExample:x.examples?.[0]?.sentence||""
+      })).filter(x=>x.word);
+    }));
+    words=results.flat();
+    apiLoaded=true;
+    renderLevels();
+    resumeIndexOnce();
+    renderCard();
+    document.getElementById("progressText").textContent += " · ☁️ CEFR online";
+  }catch(e){
+    apiLoaded=false;
+    resumeIndexOnce();
+    document.getElementById("progressText").textContent =
+      "Không tải được danh sách online → đang dùng dữ liệu demo. Kiểm tra mạng.";
+    renderCard();
+  }
+}
+
+function save(){localStorage.setItem("maomiState",JSON.stringify(state));updateStats()}
+function list(level,mode){
+  const used=new Set([...state.known[level],...state.unknown[level]]);
+  if(mode==="review") return state.unknown[level];
+  return words.filter(x=>x.level===level && !used.has(x.word)).map(x=>x.word);
+}
+function allLevel(){return words.filter(x=>x.level===level).map(x=>x.word)}
+function updateStats(){
+  let k=0,u=0;
+  LEVELS.forEach(l=>{k+=state.known[l].length;u+=state.unknown[l].length});
+  document.getElementById("totalKnown").textContent=k;
+  document.getElementById("totalUnknown").textContent=u;
+  document.getElementById("streak").textContent=state.streak;
+}
+function renderLevels(){
+  document.getElementById("levels").innerHTML=LEVELS.map(l=>
+    `<button class="tab ${l===level?"active":""}" onclick="chooseLevel('${l}')">${l}</button>`
+  ).join("");
+}
+function chooseLevel(l){level=l;index=0;revealed=false;renderLevels();renderCard()}
+function setMode(m){mode=m;index=0;revealed=false;
+  document.getElementById("learnBtn").classList.toggle("active",m==="learn");
+  document.getElementById("reviewBtn").classList.toggle("active",m==="review");
+  renderCard();
+}
+function renderCard(){
+  const arr=list(level,mode);
+  const total=allLevel().length;
+  const done=total-arr.length-(mode==="review"?0:state.unknown[level].length);
+  const percent=total ? Math.min(100,Math.max(0,done/total*100)):0;
+  document.getElementById("bar").style.width=percent+"%";
+  document.getElementById("progressText").textContent=
+    mode==="review"
+    ? `${arr.length} từ chưa biết trong ${level}`
+    : `${Math.max(0,done)} / ${total} từ ${level} đã xử lý`;
+
+  if(!arr.length){
+    saveProgress(null);
+    document.getElementById("main").innerHTML=`<div class="card">
+      <div style="font-size:50px">🎉</div>
+      <h2>${mode==="review"?"Hết từ cần ôn!":"Hoàn thành "+level+"!"}</h2>
+      <p class="small">${mode==="review"?"Bạn đã ôn hết các từ chưa biết của level này.":"Chuyển sang level tiếp theo hoặc ôn lại từ chưa biết."}</p>
+      <button class="secondary" onclick="setMode('review')">🔁 Xem từ chưa biết</button>
+    </div>`;
+    return;
+  }
+
+  resumeIndexOnce();
+  if(index>=arr.length) index=0;
+  const word=arr[index];
+  current=word;
+  saveProgress(word);
+  const meta=words.find(x=>x.word===word && x.level===level) || {};
+  document.getElementById("main").innerHTML=`<div class="card" id="card">
+    <div class="level">${level}</div>
+    <div class="word">${escapeHtml(word)}</div>
+    <div id="details">
+      ${meta.phonetic?`<div class="ipa">${escapeHtml(meta.phonetic)}</div>`:""}
+      ${meta.sourceExample?`<div class="example">“${escapeHtml(meta.sourceExample)}”</div>`:""}
+      <div class="small">Nhấn để xem nghĩa ✨</div>
+    </div>
+    <button class="reveal" onclick="revealWord()">👀 Hiện nghĩa</button>
+    <div class="actions">
+      <button class="action unknown" onclick="answer('unknown')">😵 Không biết</button>
+      <button class="action known" onclick="answer('known')">😎 Đã biết</button>
+    </div>
+  </div>`;
+}
+async function revealWord(){
+  if(revealed)return;
+  revealed=true;
+  const d=document.getElementById("details");
+  d.innerHTML=`<div class="small">⏳ Đang tra từ...</div>`;
+  try{
+    const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(current)}`);
+    if(!r.ok)throw new Error("not found");
+    const data=await r.json();
+    const x=data[0];
+    const phon=x.phonetic || (x.phonetics||[]).find(p=>p.text)?.text || "";
+    const defs=(x.meanings||[]).flatMap(m=>m.definitions||[]);
+    const def=defs[0];
+    const ex=def?.example || "";
+    const audio=(x.phonetics||[]).find(p=>p.audio)?.audio || "";
+    d.innerHTML=`
+      ${phon?`<div class="ipa">${escapeHtml(phon)}</div>`:""}
+      ${audio?`<button class="audio" onclick="playAudio('${escapeAttr(audio)}')">🔊 Phát âm</button>`:""}
+      <div class="meaning">${escapeHtml(def?.definition||"Không tìm thấy nghĩa.")}</div>
+      ${ex?`<div class="example">“${escapeHtml(ex)}”</div>`:""}
+    `;
+  }catch(e){
+    d.innerHTML=`<div class="meaning">Không lấy được dữ liệu từ API.</div>
+      <div class="small">Kiểm tra mạng hoặc thử lại.</div>`;
+  }
+}
+function playAudio(url){new Audio(url).play()}
+function answer(type){
+  if(!current)return;
+  state.known[level]=state.known[level].filter(w=>w!==current);
+  state.unknown[level]=state.unknown[level].filter(w=>w!==current);
+  state[type][level].push(current);
+  if(type==="known"){
+    state.streak++;
+    toast(KNOWN_MSGS[Math.floor(Math.random()*KNOWN_MSGS.length)]);
+  }else{
+    state.streak=0;
+    toast(UNKNOWN_MSGS[Math.floor(Math.random()*UNKNOWN_MSGS.length)]);
+  }
+  if(STREAK_MSGS[state.streak]) setTimeout(()=>toast(STREAK_MSGS[state.streak]),1000);
+
+  const prevStage=petStage(state.pet.xp);
+  state.pet.xp += type==="known"?3:1;
+  const newStage=petStage(state.pet.xp);
+  if(newStage.name!==prevStage.name){
+    setTimeout(()=>{renderPet(`🎉 Maomi tiến hoá thành ${newStage.name}!`);toast(`🎉 Maomi đã tiến hoá: ${newStage.name}!`)},1600);
+  }else{
+    renderPet();
+  }
+
+  save();
+  index++;
+  revealed=false;
+  renderCard();
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function escapeAttr(s){return s.replace(/'/g,"\\'")}
+initFromState();
+updateStats();
+showQuote();
+renderPet();
+renderLevels();
+renderCard();
+loadCEFRWords();
+</script>
+</body>
+</html>
