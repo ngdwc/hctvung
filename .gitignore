@@ -1,4 +1,5 @@
 node_modules/
 dist/win-unpacked/
 dist/builder-effective-config.yaml
+dist/builder-debug.yml
 npm-debug.log*
